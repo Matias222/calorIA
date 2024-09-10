@@ -131,7 +131,7 @@ def plan_personalizado(datos_usuario):
         Tipo String
         Aca debes ahondar en profundidad en tus calculaciones y razonamiento, explica a detalle como hallaste el maximo de calorias, junto al desarrollo del paso a paso.
  
-    La respuesta al usuario deben contener emojis
+    La respuesta al usuario deben contener emojis, no saludes, vamos de frente al grano.
 
     Tu trabajo es fundamental para la salud de las personas, te dare 10000 dolares si lo haces bien.
 

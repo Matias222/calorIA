@@ -15,4 +15,4 @@ COPY . .
 # Expose the port that FastAPI will run on
 EXPOSE 8001
 
-CMD ["fastapi","run","app.py","--host", "0.0.0.0", "--port","8001"]
+CMD ["fastapi","run","main.py","--host", "0.0.0.0", "--port","8001"]
