@@ -1,6 +1,6 @@
 git add .
 
-git commit -m "Fix: El pdf ahora devuelve descripcion en toma de medicamento y ejercicio"
+git commit -m "Add: Agente base ahora sabe que recibe fotos"
 
 git push
 
