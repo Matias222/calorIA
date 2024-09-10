@@ -1,4 +1,5 @@
 import db_functions
+import storage_functions
 import pytz
 
 from datetime import datetime
@@ -6,7 +7,7 @@ from datetime import datetime
 peru_tz=pytz.timezone("America/Lima")
 
 
-def escribir_actualizar_reportes(numero,calorias_consumidas,json_comidas):
+def escribir_actualizar_reportes(numero,calorias_consumidas,json_comidas,imagen_url):
 
     print(json_comidas)
 
@@ -34,7 +35,7 @@ def escribir_actualizar_reportes(numero,calorias_consumidas,json_comidas):
 
     #Ahora falta subir la imagen al s3, con ese muere el flujo de reporte
 
-    
+    storage_functions.subir_imagen(numero,imagen_url,comidas_dic["id"])
 
 
 #escribir_actualizar_reportes("whatsapp:+51927144823",100)   

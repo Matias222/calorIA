@@ -55,6 +55,18 @@ def leer_reportes(dic):
     if(len(response.data)==0): return []
     return response.data[0]
 
+def leer_comidas(dic):
+
+    response = (
+    cliente.table("comidas")
+    .select("*")
+    .eq("reporte",dic["reporte"])
+    .execute()
+    )
+
+    if(len(response.data)==0): return []
+    return response.data
+
 def upsertar_reportes(reporte):
     
     try:

@@ -1,5 +1,6 @@
 from api_models import ApiState
 from fastapi import BackgroundTasks
+from datetime import datetime
 
 import aux_functions
 import agents
@@ -7,8 +8,16 @@ import twilio_functions
 import calorias_pipeline
 import random
 import wrappers
+import storage_functions
+import db_functions
+import pytz
+
+peru_tz=pytz.timezone("America/Lima")
+
 
 def onboarding(state:ApiState):
+
+    if(len(state.buffer)==1): state.background_tasks.add_task(storage_functions.crear_bucket,state.numero_enviar)
 
     json_rpta=agents.onboarding_agent(state.buffer)
     
@@ -26,7 +35,17 @@ def onboarding(state:ApiState):
 
         state.buffer=[]
         state.estado_conversa="BASE"
-        state.respuesta_usuario="Tu data fue registrada correctamente, estoy generando un plan personalizado, dame un minuto! 😎😎😎"
+        state.respuesta_usuario="""
+¡Genial! Ya tengo todo listo para crear tu plan personalizado de calorías 🎉✨
+
+No hay secretos ni fórmulas mágicas para bajar de peso, solo un principio básico: 
+
+*Comer menos calorías de las que tu cuerpo quema* 🔥
+
+Con toda tu información, te voy a generar exactamente lo que necesitas comer cada día para alcanzar tus metas 💪🍽️
+
+Lo único que tienes que hacer es enviarme fotos de tus comidas, y yo me encargaré de contar las calorías por ti 📸📊. ¡Así de fácil!
+"""
 
         #CALL PARA OBTENER EL PLAN PERSONALIZADO
 
@@ -36,9 +55,9 @@ def onboarding(state:ApiState):
 
         state.json_onboarding["limite_calorias_diarias"]=json_plan["Maximo calorias"]
 
-        state.respuesta_usuario=json_plan["Respuesta al usuario"]
+        state.respuesta_usuario=json_plan["Respuesta al usuario"]+"\n¿Listo para empezar? 🚀"
 
-def imagen(state:ApiState,imagen_url:str,background_tasks: BackgroundTasks):
+def imagen(state:ApiState,imagen_url:str):
 
     loaders=[
         f"Perfecto {state.nombre}, estoy analizando la imagen dame unos segundos 😁😁😁",
@@ -53,11 +72,24 @@ def imagen(state:ApiState,imagen_url:str,background_tasks: BackgroundTasks):
 
     state.respuesta_usuario=respuesta_reporte
 
-    background_tasks.add_task(wrappers.escribir_actualizar_reportes,state.numero_enviar,total_calorias,dic)
+    state.background_tasks.add_task(wrappers.escribir_actualizar_reportes,state.numero_enviar,total_calorias,dic,imagen_url)
 
     #print(dic)
 
 def base(state:ApiState):
     
-    pass
+    peru_time = datetime.now(peru_tz)
+    formatted_date = peru_time.strftime("%m/%d/%Y")   
     
+    dic_reportes=db_functions.leer_reportes({"usuario":state.numero_enviar,"dia":formatted_date})
+    
+    calorias_consumidas=dic_reportes["calorias"]
+    comidas=db_functions.leer_comidas({"reporte":dic_reportes["id"]})
+
+    comidas_filtrado=[]
+
+    for i in comidas: comidas_filtrado.append({"comida":i["comida"],"calorias":i["calorias"]})
+
+    rpta=agents.consulta_generales(state,comidas,calorias_consumidas)
+
+    state.respuesta_usuario=rpta

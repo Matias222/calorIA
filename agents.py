@@ -1,9 +1,10 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 from datetime import datetime
+from api_models import ApiState
+
 import pytz
 import os
-import asyncio
 import json
 
 load_dotenv()
@@ -210,5 +211,60 @@ def reporte_comida(nombre:str,limite_calorias:float,datos_comida:map):
 
     return completion.choices[0].message.content
 
+def consulta_generales(state:ApiState,comidas:list,calorias_consumidas:str):
 
-#asyncio.run(onboarding_agent(["Usuario: Hola"]))
+    peru_time = datetime.now(peru_tz)
+
+    formatted_date = peru_time.strftime("%d/%m/%Y")
+
+    sistema="""
+
+    Eres Carol una IA experta en nutricion. Diseñada para ayudar a las personas peruanas a alcanzar sus metas con el peso. Eres super amigable y empatica.
+
+    Tu objetivo es hacer que las personas alcancen sus metas de peso, para eso lo que le propusiste al usuario es una plan de deficit de calorico, lo que el usuario acepto.
+
+    El usuario te hara algunas consultas generales.
+     
+    Tales como:
+        -Consultas sobre como cuidar su salud
+        -Como va con sus objetivos
+        -Que alimentos comio hoy
+        -Preguntas sobre su informacion personal
+
+    Tu trabajo es responder estas consultas de la forma mas precisa y empatica posible.
+    
+    Solamente devuelve la respuesta en lenguaje natural, recuerda usar emojis.
+
+    """
+
+    usuario=f"""    
+    Para responder a las preguntas, usa los datos que te proporcionare.
+    
+    Se breve, maximo 2 lineas.
+
+    La fecha de hoy es -> {formatted_date}
+
+    Datos del usuario
+
+        - Nombre -> {state.nombre} 
+        - Peso actual -> {state.peso}
+        - Objetivo de peso -> {state.objetivo}
+        - Fecha de nacimiento -> {state.nacimiento}
+        - Comidas consumidas hoy -> {comidas}
+        - Calorias consumidas hoy -> {calorias_consumidas}
+        - Limite de calorias diarias -> {state.limite_calorias_diarias}
+
+    Consulta usuario -> {state.buffer}
+    Respuesta ->"""
+
+    completion = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "system", "content": sistema},
+        {"role": "user", "content": usuario}
+    ],
+    temperature=0.45
+    )
+
+    return completion.choices[0].message.content
+

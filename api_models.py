@@ -1,9 +1,7 @@
 from collections import deque
 from datetime import datetime
 from typing import Literal
-
-import pytz
-from fastapi import WebSocket
+from fastapi import WebSocket, BackgroundTasks
 from pydantic import BaseModel, Field
 
 class ApiState(BaseModel):
@@ -19,3 +17,11 @@ class ApiState(BaseModel):
     numero_enviar: str | None = Field(default="")
     limite_calorias_diarias: float | None = Field(default=0.0)
     nombre: str | None = Field(default="")
+    background_tasks: BackgroundTasks
+    nacimiento: str | None
+    objetivo: str | None
+    peso: float | None
+
+class Recordatorio(BaseModel):
+    numero: str
+    mensaje: str

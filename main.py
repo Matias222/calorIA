@@ -1,11 +1,10 @@
 from fastapi import FastAPI, Request, Form, Depends, BackgroundTasks
 from typing import Optional
-from api_models import ApiState
+from api_models import ApiState, Recordatorio
 
 
 import db_functions
 import twilio_functions
-import calorias_pipeline
 import flows_estados
 
 app = FastAPI()
@@ -20,11 +19,9 @@ def whatsapp_webhook(background_tasks: BackgroundTasks, request: bytes=Depends(e
     message_body = request["Body"]
     message_type = request["MessageType"]
 
-    print(from_number)
-
     data_usuario=db_functions.upsertar_usuario({"numero":from_number})
 
-    state=ApiState(buffer=data_usuario["buffer"],estado_conversa=data_usuario["estado_conversa"],numero_enviar=from_number,limite_calorias_diarias=data_usuario["limite_calorias_diarias"],nombre=data_usuario["nombre"])
+    state=ApiState(buffer=data_usuario["buffer"],estado_conversa=data_usuario["estado_conversa"],numero_enviar=from_number,limite_calorias_diarias=data_usuario["limite_calorias_diarias"],nombre=data_usuario["nombre"],background_tasks=background_tasks,nacimiento=data_usuario["nacimiento"],objetivo=data_usuario["objetivo"],peso=data_usuario["peso"])
 
     state.buffer.append(f"Usuario: {message_body}")
 
@@ -33,7 +30,7 @@ def whatsapp_webhook(background_tasks: BackgroundTasks, request: bytes=Depends(e
 
     elif(state.estado_conversa=="BASE"):
 
-        if(message_type=="image"): flows_estados.imagen(state,request["MediaUrl0"],background_tasks)
+        if(message_type=="image"): flows_estados.imagen(state,request["MediaUrl0"])
         else: flows_estados.base(state)
 
     state.buffer.append(f"IA: {state.respuesta_usuario}")
@@ -42,3 +39,7 @@ def whatsapp_webhook(background_tasks: BackgroundTasks, request: bytes=Depends(e
 
     #Envia la respuesta
     twilio_functions.enviar_mensaje(state.numero_enviar,state.respuesta_usuario)
+
+@app.post("/recordatorio")
+def recordatorio(recordatorio: Recordatorio):
+    twilio_functions.enviar_mensaje(recordatorio.numero,recordatorio.mensaje)

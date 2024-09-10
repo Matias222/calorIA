@@ -51,7 +51,8 @@ def get_image_info(url: str):
             }
         ],
         response_format={"type": "json_object"},
-        temperature=0    
+        temperature=0,
+        seed=33
     )
 
     j = response.choices[0].message.content
