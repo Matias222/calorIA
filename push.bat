@@ -1,6 +1,6 @@
 git add .
 
-git commit -m "Fix: Error en agente base"
+git commit -m "Fix: Add Helicone to calorias pipeline"
 
 git push
 

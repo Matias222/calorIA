@@ -6,8 +6,15 @@ import json
 load_dotenv()
 
 openai_key = os.environ.get('OPENAI-KEY')
+helicone_key = os.environ.get("HELICONE-KEY")
 
-client = OpenAI(api_key=openai_key)
+client = OpenAI(
+    api_key=openai_key,
+    base_url="https://oai.helicone.ai/v1",
+    default_headers={ 
+    "Helicone-Auth": f"Bearer {helicone_key}",
+    }
+)
 
 def get_image_info(url: str):
 
