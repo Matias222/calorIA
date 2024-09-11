@@ -41,10 +41,10 @@ def onboarding(state:ApiState):
         state.respuesta_usuario=cadenas.onboarding_bajar
 
         try:
-            if(int(state.json_onboarding["peso"])>int(state.json_onboarding["objetivo"])): state.respuesta_usuario=cadenas.onboarding_subir
+            if(int(state.json_onboarding["peso"])<int(state.json_onboarding["objetivo"])): state.respuesta_usuario=cadenas.onboarding_subir
         except:
             state.respuesta_usuario=cadenas.onboarding_subir
-            
+
         #CALL PARA OBTENER EL PLAN PERSONALIZADO
 
         twilio_functions.enviar_mensaje(state.numero_enviar,state.respuesta_usuario)
