@@ -19,6 +19,8 @@ def whatsapp_webhook(background_tasks: BackgroundTasks, request: bytes=Depends(e
     message_body = request["Body"]
     message_type = request["MessageType"]
 
+    if(from_number=="whatsapp:+51996568784"): return
+
     data_usuario=db_functions.upsertar_usuario({"numero":from_number})
 
     state=ApiState(buffer=data_usuario["buffer"],estado_conversa=data_usuario["estado_conversa"],numero_enviar=from_number,limite_calorias_diarias=data_usuario["limite_calorias_diarias"],nombre=data_usuario["nombre"],background_tasks=background_tasks,nacimiento=data_usuario["nacimiento"],objetivo=data_usuario["objetivo"],peso=data_usuario["peso"])

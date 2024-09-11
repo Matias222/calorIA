@@ -1,6 +1,6 @@
 git add .
 
-git commit -m "Fix: Add Helicone to calorias pipeline"
+git commit -m "Fix: Fix de Jeremy, objetivo a veces no es numerico + baneo Paolo"
 
 git push
 

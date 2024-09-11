@@ -11,6 +11,7 @@ import wrappers
 import storage_functions
 import db_functions
 import pytz
+import cadenas
 
 peru_tz=pytz.timezone("America/Lima")
 
@@ -37,30 +38,13 @@ def onboarding(state:ApiState):
         state.estado_conversa="BASE"
 
 
-        if(state.json_onboarding["peso"]<state.json_onboarding["objetivo"]):
-            state.respuesta_usuario="""
-¡Genial! Ya tengo todo listo para crear tu plan personalizado de calorías 🎉✨
+        state.respuesta_usuario=cadenas.onboarding_bajar
 
-No hay secretos ni fórmulas mágicas para bajar de peso, solo un principio básico: 
-
-*Comer menos calorías de las que tu cuerpo quema* 🔥
-
-Con toda tu información, te voy a generar exactamente lo que necesitas comer cada día para alcanzar tus metas 💪🍽️
-
-Lo único que tienes que hacer es enviarme fotos de tus comidas, y yo me encargaré de contar las calorías por ti 📸📊. ¡Así de fácil!"""
-        else:
-
-            state.respuesta_usuario="""
-¡Genial! Ya tengo todo listo para crear tu plan personalizado de calorías 🎉✨
-
-No hay secretos ni fórmulas mágicas para ganar masa muscular, solo un principio básico:
-
-*Comer más calorías de las que tu cuerpo quema* 🔥
-
-Con toda tu información, te voy a generar exactamente lo que necesitas comer cada día para alcanzar tus metas de masa muscular 💪🍽️.
-
-Lo único que tienes que hacer es enviarme fotos de tus comidas, y yo me encargaré de contar las calorías por ti 📸📊. ¡Así de fácil!"""
-
+        try:
+            if(int(state.json_onboarding["peso"])>int(state.json_onboarding["objetivo"])): state.respuesta_usuario=cadenas.onboarding_subir
+        except:
+            state.respuesta_usuario=cadenas.onboarding_subir
+            
         #CALL PARA OBTENER EL PLAN PERSONALIZADO
 
         twilio_functions.enviar_mensaje(state.numero_enviar,state.respuesta_usuario)
