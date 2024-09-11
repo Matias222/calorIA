@@ -35,7 +35,10 @@ def onboarding(state:ApiState):
 
         state.buffer=[]
         state.estado_conversa="BASE"
-        state.respuesta_usuario="""
+
+
+        if(state.json_onboarding["peso"]<state.json_onboarding["objetivo"]):
+            state.respuesta_usuario="""
 ¡Genial! Ya tengo todo listo para crear tu plan personalizado de calorías 🎉✨
 
 No hay secretos ni fórmulas mágicas para bajar de peso, solo un principio básico: 
@@ -44,8 +47,19 @@ No hay secretos ni fórmulas mágicas para bajar de peso, solo un principio bás
 
 Con toda tu información, te voy a generar exactamente lo que necesitas comer cada día para alcanzar tus metas 💪🍽️
 
-Lo único que tienes que hacer es enviarme fotos de tus comidas, y yo me encargaré de contar las calorías por ti 📸📊. ¡Así de fácil!
-"""
+Lo único que tienes que hacer es enviarme fotos de tus comidas, y yo me encargaré de contar las calorías por ti 📸📊. ¡Así de fácil!"""
+        else:
+
+            state.respuesta_usuario="""
+¡Genial! Ya tengo todo listo para crear tu plan personalizado de calorías 🎉✨
+
+No hay secretos ni fórmulas mágicas para ganar masa muscular, solo un principio básico:
+
+*Comer más calorías de las que tu cuerpo quema* 🔥
+
+Con toda tu información, te voy a generar exactamente lo que necesitas comer cada día para alcanzar tus metas de masa muscular 💪🍽️.
+
+Lo único que tienes que hacer es enviarme fotos de tus comidas, y yo me encargaré de contar las calorías por ti 📸📊. ¡Así de fácil!"""
 
         #CALL PARA OBTENER EL PLAN PERSONALIZADO
 

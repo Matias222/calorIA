@@ -61,6 +61,8 @@ def onboarding_agent(buffer_conversa=[]):
     "Datos":"El JSON con los datos del usuario"
     }
 
+    Recuerda que eres inteligente si el usuario por ejemplo te da su fecha de nacimiento en otro formato, tu lo puedes parsear a lo requerido, sin necesidad de molestarlo.
+
     Cuando termines de recopilar toda la informacion, cambiaras el estado a FINALIZACION.
     
     En tus respuestas al usuario usa emojis y no olvides explicarle al usuario para que necesitas su informacion.
