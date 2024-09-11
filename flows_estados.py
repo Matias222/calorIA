@@ -69,7 +69,7 @@ Lo único que tienes que hacer es enviarme fotos de tus comidas, y yo me encarga
 
         state.json_onboarding["limite_calorias_diarias"]=json_plan["Maximo calorias"]
 
-        state.respuesta_usuario=json_plan["Respuesta al usuario"]+"\n¿Listo para empezar? 🚀"
+        state.respuesta_usuario=json_plan["Respuesta al usuario"]+"\n\nQuedo atento a las fotos de tus comidas! 📷"
 
 def imagen(state:ApiState,imagen_url:str):
 
@@ -97,13 +97,17 @@ def base(state:ApiState):
     
     dic_reportes=db_functions.leer_reportes({"usuario":state.numero_enviar,"dia":formatted_date})
     
-    calorias_consumidas=dic_reportes["calorias"]
-    comidas=db_functions.leer_comidas({"reporte":dic_reportes["id"]})
+    try:
+        calorias_consumidas=dic_reportes["calorias"]
+        comidas=db_functions.leer_comidas({"reporte":dic_reportes["id"]})
+    except:
+        calorias_consumidas=0
+        comidas=[]
 
     comidas_filtrado=[]
 
     for i in comidas: comidas_filtrado.append({"comida":i["comida"],"calorias":i["calorias"]})
 
-    rpta=agents.consulta_generales(state,comidas,calorias_consumidas)
+    rpta=agents.consulta_generales(state,comidas_filtrado,calorias_consumidas)
 
     state.respuesta_usuario=rpta
