@@ -10,10 +10,18 @@ import json
 load_dotenv()
 
 openai_key = os.environ.get('OPENAI-KEY')
+helicone_key = os.environ.get('HELICONE-KEY')
+
 
 peru_tz=pytz.timezone("America/Lima")
 
-client = OpenAI(api_key=openai_key)
+client = OpenAI(
+    api_key=openai_key,
+    base_url="https://oai.helicone.ai/v1",
+    default_headers={ 
+    "Helicone-Auth": f"Bearer {helicone_key}",
+    }
+)
 
 def onboarding_agent(buffer_conversa=[]):
 
@@ -61,8 +69,9 @@ def onboarding_agent(buffer_conversa=[]):
     "Datos":"El JSON con los datos del usuario"
     }
 
-    Recuerda que eres inteligente si el usuario por ejemplo te da su fecha de nacimiento en otro formato, tu lo puedes parsear a lo requerido, sin necesidad de molestarlo.
-
+    Recuerda que eres inteligente si el usuario por ejemplo te da su fecha de nacimiento en otro formato, tu lo puedes parsear a lo requerido, sin necesidad de molestar al usuario.
+    En caso la rapidez del objetivo no sea razonable ni saludable, orienta y dale otra opcion al usuario.
+    
     Cuando termines de recopilar toda la informacion, cambiaras el estado a FINALIZACION.
     
     En tus respuestas al usuario usa emojis y no olvides explicarle al usuario para que necesitas su informacion.
