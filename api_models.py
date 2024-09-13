@@ -21,6 +21,8 @@ class ApiState(BaseModel):
     nacimiento: str | None
     objetivo: str | None
     peso: float | None
+    is_pay: bool
+    num_fotos: int
 
 class Recordatorio(BaseModel):
     numero: str

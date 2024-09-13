@@ -232,28 +232,38 @@ def consulta_generales(state:ApiState,comidas:list,calorias_consumidas:str):
 
     Eres Carol una IA experta en nutricion. Diseñada para ayudar a las personas peruanas a alcanzar sus metas con el peso. Eres super amigable y empatica.
 
-    Tu objetivo es hacer que las personas alcancen sus metas de peso, para eso lo que le propusiste al usuario es una plan de deficit de calorico, lo que el usuario acepto.
+    Tu objetivo es hacer que las personas alcancen sus metas de peso, para eso lo que le propusiste al usuario es una plan de deficit calorico, lo que el usuario acepto.
 
-    El usuario te hara algunas consultas generales.
+    El usuario te escribira y su consulta caera en uno de tres propositos.
+
+    1) CONSULTA GENERAL -> Es una consulta general sobre su salud o dudas alimenticias.
+    2) CORRECCION -> Anteriormente te paso una fotografia y tu identificaste erroneamente un alimento, el usuario te esta corrigiendo.
+    3) ADICION -> El usuario desea reportarte un alimento consumido.
     
-    Tales como:
-        -Consultas sobre como cuidar su salud
-        -Como va con sus objetivos
-        -Que alimentos comio hoy
-        -Preguntas sobre su informacion personal
+    Tu debes responderle de la manera mas empatica e informativa posible.
 
-    Adicionalmente debes saber que tambien estas en capacidad de recibir fotos, para luego darle al usuario su contenido calorico.
+    Segun el proposito responderas de la siguiente manera
 
-    Tu trabajo es responder estas consultas de la forma mas precisa y empatica posible.
+    1) CONSULTA GENERAL 
+        Responde la pregunta de la manera mas factica y empatica posible.
+    2) CORRECCION
+        Comentale al usuario que lo corregiras a brevedad.
+    3) ADICION
+        Dile al usuario la cantidad de calorias que acaba de consumir, explicale el pq es asi, dando el detallado.
+        
+    En todas tus respuestas deberas usar emojis.
+
+    Solo puedes comunicarte usando JSONs, con los siguientes tres unicos campos ("PROPOSITO", "RESPUESTA AL USUARIO" y "CHAIN OF THOUGH")
     
-    Solamente devuelve la respuesta en lenguaje natural, recuerda usar emojis.
-
+    En el campo CHAIN OF THOUGH, devuelve tu cadena de razonamiento para llegar a la respuesta del usuario.
+    
     """
 
     usuario=f"""    
-    Para responder a las preguntas, usa los datos que te proporcionare.
+    Si el usuario tiene preguntas que necesiten de datos personales, usa los datos que te proporcionare.
     
-    Se breve, maximo 2 lineas.
+    Se breve en tu RESPUESTA AL USUARIO, maximo 4 lineas. 
+    Usa endlines para mas orden.
 
     La fecha de hoy es -> {formatted_date}
 
@@ -276,8 +286,82 @@ def consulta_generales(state:ApiState,comidas:list,calorias_consumidas:str):
         {"role": "system", "content": sistema},
         {"role": "user", "content": usuario}
     ],
-    temperature=0.45
+    temperature=0.35,
+    response_format={"type":"json_object"}
+    )
+
+    return json.loads(completion.choices[0].message.content)
+
+def comida_equivocacion(nombre:str,limite_calorias:float,datos_comida:map):
+    
+    peru_time = datetime.now(peru_tz)
+
+    formatted_date = peru_time.strftime("%d/%m/%Y")
+
+    sistema="""
+
+    Eres Carol una IA experta en nutricion. Diseñada para ayudar a las personas a alcanzar sus metas con el peso. Eres super amigable y empatica.
+
+    Tu objetivo es hacer que las personas alcancen sus metas de peso, para eso lo que le propusiste al usuario es una plan de deficit de calorico, lo que el acepto.
+
+    Tu trabajo es dado fotografias de las comidas de los usuarios, tu le indiques que comida es junto a sus calorias.
+
+    Ya hemos pasado las fotografias por algoritmos de deteccion de comida, tu trabajo es comunicarle al usuario de forma empatica y sencilla lo que esta consumiendo, ademas de llamarle la atencion si se pasa de su limite calorico diario.
+
+    Solamente devuelve la respuesta en lenguaje natural, recuerda usar emojis.
+
+    """
+
+    completion = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "system", "content": sistema},
+        {"role": "user", "content": f"""
+
+            Anteriormente le diste al usuario un analisis de calorias al plato equivocado, el usuario te corrigio y tu ya tienes el correcto.
+         
+            Disculpate y comunicale su nuevo analisis calorico junto al plato.
+         
+            Se super positiva y empatica.
+                     
+            Se breve, maximo 2 lineas.
+
+            La fecha al dia de hoy es -> {formatted_date}
+            Nombre del usuario -> {nombre}
+            Limite calorias -> {limite_calorias}
+            Datos fotografia -> {datos_comida}
+            Respuesta ->"""}
+    ],
+    temperature=0.6
     )
 
     return completion.choices[0].message.content
 
+def parseo(texto:str):
+    
+    sistema="""
+
+    Te dare una cadena de texto, en un JSON deberas devolver.
+
+    {
+    "nombre":"La comida en cuestion",
+    "calorias:"Las calorias que tiene"
+    }
+
+    """
+
+    completion = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "system", "content": sistema},
+        {"role": "user", "content": f"""
+            Texto -> {texto}
+            """}
+    ],
+    temperature=0.35,
+    response_format={"type": "json_object"}
+    )
+
+    return json.loads(completion.choices[0].message.content)
+
+#consulta_generales("Es perjudicial comer yogurt con frituras?")

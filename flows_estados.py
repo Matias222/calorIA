@@ -64,6 +64,8 @@ def imagen(state:ApiState,imagen_url:str):
 
     twilio_functions.enviar_mensaje(state.numero_enviar,loaders[random.randint(0,1)])
 
+    state.num_fotos+=1
+
     dic,total_calorias=calorias_pipeline.get_image_info(imagen_url)
 
     respuesta_reporte=agents.reporte_comida(state.nombre,state.limite_calorias_diarias,dic)
@@ -94,4 +96,30 @@ def base(state:ApiState):
 
     rpta=agents.consulta_generales(state,comidas_filtrado,calorias_consumidas)
 
-    state.respuesta_usuario=rpta
+    segmento_rpta=rpta["PROPOSITO"]
+
+    if(segmento_rpta=="CORRECCION"): #Lllamada otra vez a flujo con imagen para la correcion
+        
+        twilio_functions.enviar_mensaje(state.numero_enviar,"Comprendo, dame un segundo para calcular las calorias nuevamente 😎")
+
+        ultima_comida=db_functions.ultima_comida(dic_reportes["id"])
+
+        link_publico=storage_functions.link_publico(state.numero_enviar,ultima_comida["id"])
+
+        correccion_usuario=state.buffer[-2]+state.buffer[-1]
+
+        modelo_respuesta,total_calorias=calorias_pipeline.edit_image_info(link_publico,correccion_usuario,ultima_comida)
+
+        respuesta_reporte=agents.comida_equivocacion(state.nombre,state.limite_calorias_diarias,modelo_respuesta)
+    
+        state.background_tasks.add_task(wrappers.equivocacion_correccion,modelo_respuesta,ultima_comida,dic_reportes["calorias"],total_calorias) #Aca el background task es distinto
+
+        state.respuesta_usuario=respuesta_reporte
+
+    else:
+        state.respuesta_usuario=rpta["RESPUESTA AL USUARIO"]
+
+        if(segmento_rpta=="ADICION"):
+            
+            json=agents.parseo(state.respuesta_usuario)
+            state.background_tasks.add_task(wrappers.escribir_actualizar_reportes_simplificado,state.numero_enviar,json) 
