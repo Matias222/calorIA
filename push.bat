@@ -1,6 +1,6 @@
 git add .
 
-git commit -m "Fix: Fix de Jeremy, objetivo a veces no es numerico + baneo Paolo"
+git commit -m "Add: flujo agregar comida por texto e modificacion a la imagen"
 
 git push
 
